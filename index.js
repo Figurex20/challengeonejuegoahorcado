@@ -1,15 +1,33 @@
 !(function () {
-	let juego = {
-		palabra: 'ALURA',
-		estado: 7,
-		adivinado: ['A', 'L'],
-		errado: ['B', 'J', 'K', 'C'],
-	};
+	let $new_word = document.createElement('div');
+	let $input = document.createElement('input');
+	let $add = document.createElement('button');
+	let letras_erradas = [];
+	let palabras = [
+		'ALURA',
+		'NIÑO',
+		'AFINIDAD',
+		'PORGRAMAR',
+		'ORACLE',
+		'YOUTUBE',
+	];
+
+	let fin = false;
+
+	//VARIABLE PARA ALMACENAR LA CONFIRMACION
+	let juego = null;
+	//VALIDAR SI YA SE ENVIO UNA ALARTA
+	let end = false;
 
 	let $html = {
 		hombre: document.getElementById('hombre'),
 		adivinado: document.querySelector('.adivinado'),
 		errado: document.querySelector('.errado'),
+		hombre_ahorcado: document.querySelector('.hombre-ahorcado'),
+		buttons: document.querySelector('.botones'),
+		new_word: document.querySelector('#new'),
+		desistir: document.querySelector('#desistir'),
+		btn_game: document.querySelector('#game'),
 	};
 
 	function dibujar(juego) {
@@ -51,6 +69,7 @@
 			$span.setAttribute('class', 'letra errada');
 			$span.appendChild($txt);
 			$element.appendChild($span);
+			letras_erradas.push(letra);
 		}
 	}
 
@@ -88,22 +107,122 @@
 		} else {
 			// SI NO ES LA LETRA
 			// MAS CERCA DE LA AHORCA
-			juego.estado--;
-			//SE PONE LAS LETRAS EN LAS ERRADAS
-			errado.push(letra);
+			if (!errado.includes(letra)) {
+				juego.estado--;
+				//SE PONE LAS LETRAS EN LAS ERRADAS
+				errado.push(letra);
+			} else {
+				alert('Ya has escrito esta letra');
+			}
 		}
 	}
 
 	window.onkeypress = (e) => {
-		let letra = e.key;
-		//Solo aceptar mayus, minus y ñ. No aceptar ningún otro carácter.
-		let regex = /^[a-zA-Z\u00f1\s\u00f1\u00d1]+$/;
-		if (/^A-ZÑ/.test(letra)) {
-			return;
-		}
+		if (!fin) {
+			let letra = e.key.toUpperCase();
 
-		adivinar(juego, letra);
-		dibujar(juego);
+			if (/^A-ZÑ/.test(letra)) {
+				return;
+			}
+
+			adivinar(juego, letra);
+			let estado = juego.estado;
+
+			if (estado === 8 && !end) {
+				setTimeout(() => {
+					alert('¡GANASTE!');
+				}, 500);
+				end = true;
+			} else if (estado === 1 && !end) {
+				setTimeout(() => {
+					alert(`¡PERDISTE! la palabra era ${juego.palabra}`);
+				}, 500);
+				end = true;
+			}
+
+			dibujar(juego);
+			show(estado);
+		}
 	};
-	dibujar(juego);
+
+	function palabraAlatoria() {
+		let index = Math.floor(Math.random() * palabras.length);
+		return palabras[index];
+	}
+
+	window.nuevoJuego = () => {
+		let palabra = palabraAlatoria();
+		juego = {};
+		juego.palabra = palabra;
+		juego.estado = 7;
+		juego.adivinado = [];
+		juego.errado = [];
+		dibujar(juego);
+		end = false;
+		fin = false;
+		$html.hombre_ahorcado.classList.remove('hidden');
+		$html.adivinado.classList.remove('hidden');
+		$html.errado.classList.remove('hidden');
+		$html.buttons.classList.remove('top');
+		$html.desistir.classList.remove('hidden');
+		$html.new_word.classList.add('hidden');
+		$new_word.classList.add('hidden');
+	};
+
+	window.vuelve = () => {
+		const again = () => {
+			$html.hombre_ahorcado.classList.add('hidden');
+			$html.adivinado.classList.add('hidden');
+			$html.errado.classList.add('hidden');
+			$html.buttons.classList.add('top');
+			$html.desistir.classList.add('hidden');
+			$html.new_word.classList.remove('hidden');
+			setTimeout(() => {
+				alert('¡Vuelve a jugar!');
+			}, 500);
+		};
+		console.log('hola');
+		again();
+	};
+
+	window.new_word = () => {
+		if (!fin) {
+			fin = true;
+
+			$new_word.setAttribute('class', 'new_word');
+
+			$input.setAttribute('id', 'input_word');
+
+			$add.setAttribute('class', 'add');
+			$add.setAttribute('onclick', 'add2()');
+			$add.innerHTML = 'add';
+
+			$new_word.appendChild($input);
+			$new_word.appendChild($add);
+
+			$html.buttons.appendChild($new_word);
+
+			$html.hombre_ahorcado.classList.add('hidden');
+			$html.adivinado.classList.add('hidden');
+			$html.errado.classList.add('hidden');
+			$html.buttons.classList.add('top');
+
+			window.add2 = () => {
+				let palabra = input_word.value;
+				//Solo aceptar mayus y ñ. No aceptar ningún otro carácter.
+				let regex = /^[A-Z\u00f1\s\u00f1\u00d1]+$/;
+				if (
+					regex.test(palabra) &&
+					palabra.length <= 8 &&
+					!palabras.includes(palabra)
+				) {
+					palabras.push(palabra);
+					input_word.value = '';
+					alert('¡Palabra añadida!');
+				} else {
+					alert('No se puede añadir la palabra');
+				}
+			};
+		}
+	};
 })();
