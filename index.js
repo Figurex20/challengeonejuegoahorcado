@@ -39,7 +39,7 @@
 
 		let $element;
 		$element = $html.hombre;
-		$element.src = `./imagenes/0${estado}.png`;
+		$element.src = `/imagenes/0${estado}.png`;
 
 		//Creamos las letras adivinadas
 		let palabra = juego.palabra;
