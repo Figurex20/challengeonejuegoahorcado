@@ -220,7 +220,9 @@
 					input_word.value = '';
 					alert('¡Palabra añadida!');
 				} else {
-					alert('No se puede añadir la palabra');
+					alert(
+						'No se puede añadir la palabra, solo se permite que tenga mayusculas y sea menor a 8 caracteres'
+					);
 				}
 			};
 		}
